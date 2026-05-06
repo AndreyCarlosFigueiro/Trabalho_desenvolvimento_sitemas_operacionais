@@ -8,6 +8,19 @@ class Processo:
         self.prioridade = prioridade
         self.finalizado = False
 
+def gerar_processos_aleatorio():
+    lista = []
+    total = random.randint(2, 10)
+    print(f"Quantidade de processos gerada: {total}")
+    for i in range(total):
+        tempo_execucao = random.randint(1, 10)
+        tempo_chegada = random.randint(1, 10)
+        prioridade = random.randint(1, 10)
+        processo = Processo(tempo_execucao, tempo_chegada, prioridade)
+        lista.append(processo)
+        print(f"Processo [{i}]: tempo de execução={tempo_execucao} tempo restante={tempo_execucao} tempo de chegada={tempo_chegada} Prioridade={prioridade}")
+    return lista, total
+
 lista_processo = []
 flag = True
 acumulador = 0
@@ -15,17 +28,9 @@ lista_espera = []
 total_processo = 0
 aleatorio = int(input("Sera aleatorio? SIM(1) NÃO(2): "))
 
-if aleatorio == 1:
-    total_processo = random.randint(2, 10)
-    print(f"Quantidade de processos gerada: {total_processo}")
-    for i in range(total_processo):
-        tempo_execucao = random.randint(1, 10)
-        tempo_chegada = random.randint(1, 10)
-        prioridade = random.randint(1, 10)
 
-        processo = Processo(tempo_execucao, tempo_chegada, prioridade)
-        lista_processo.append(processo)
-        print(f"Processo [{i}]: tempo de execução= {tempo_execucao} tempo de restante= {tempo_execucao} tempo de chegada= {tempo_chegada} Prioridade= {prioridade}")
+if aleatorio == 1:
+    lista_processo, total_processo = gerar_processos_aleatorio()
 
 elif aleatorio == 2:
     total_processo = int(input("Quantos processos? "))
@@ -158,7 +163,115 @@ while flag == True:
             soma += espera
         print(f"Tempo médio de espera: {soma / total_processo}")
         input("Clique enter para voltar ao menu")
+#AS PRIORIADDES USAM QUANTO MENOR O NUMERO MAIOR A PRIORIDADE        
+    #codigo da opção 4
+    elif algoritimo == 4:
+        tempo = 0
+        finalizados = 0
 
+        # reset dos processos
+        for p in lista_processo:
+            p.tempo_restante = p.tempo_execucao
+            p.finalizado = False
+            p.tempo_termino = 0
+
+        while finalizados < total_processo:
+            escolhido = -1
+            existe_pronto = False
+
+            # procurar algum processo pronto
+            for i in range(total_processo):
+                p = lista_processo[i]
+                if p.tempo_chegada <= tempo:
+                    if p.finalizado == False:
+                        escolhido = i
+                        existe_pronto = True
+
+            if existe_pronto == False:
+                tempo += 1
+                print(f"tempo [{tempo}]: nenhum processo está pronto")
+            else:
+                # escolher o processo de MAIOR prioridade
+                # menor número = maior prioridade
+                for i in range(total_processo):
+                    p = lista_processo[i]
+                    if p.tempo_chegada <= tempo:
+                        if p.finalizado == False:
+                            if p.prioridade < lista_processo[escolhido].prioridade:
+                                escolhido = i
+                tempo += 1
+                lista_processo[escolhido].tempo_restante -= 1
+                print(
+                    f"tempo [{tempo}]: processo[{escolhido}] restante={lista_processo[escolhido].tempo_restante}")
+                if lista_processo[escolhido].tempo_restante == 0:
+                    lista_processo[escolhido].finalizado = True
+                    lista_processo[escolhido].tempo_termino = tempo
+                    finalizados += 1
+
+        # cálculo do tempo de espera
+        print("")
+        soma = 0
+        for i in range(total_processo):
+            p = lista_processo[i]
+            espera = p.tempo_termino - p.tempo_chegada - p.tempo_execucao
+            print(f"Processo[{i}]: tempo_espera={espera}")
+            soma += espera
+        print(f"Tempo médio de espera: {soma / total_processo}")
+        input("Clique enter para voltar ao menu")
+
+    #codigo da opção 5 - Prioridade Não Preemptivo
+    elif algoritimo == 5:
+        tempo = 0
+        finalizados = 0
+        # reset dos processos
+        for p in lista_processo:
+            p.tempo_restante = p.tempo_execucao
+            p.finalizado = False
+            p.tempo_termino = 0
+
+        while finalizados < total_processo:
+            escolhido = -1
+            existe_pronto = False
+            # procurar algum processo pronto
+            for i in range(total_processo):
+                p = lista_processo[i]
+                if p.tempo_chegada <= tempo:
+                    if p.finalizado == False:
+                        escolhido = i
+                        existe_pronto = True
+            if existe_pronto == False:
+                tempo += 1
+                print(f"tempo [{tempo}]: nenhum processo está pronto")
+            else:
+                # escolher o processo de MAIOR prioridade
+                for i in range(total_processo):
+                    p = lista_processo[i]
+                    if p.tempo_chegada <= tempo:
+                        if p.finalizado == False:
+                            if p.prioridade < lista_processo[escolhido].prioridade:
+                                escolhido = i
+
+                # executa ATÉ TERMINAR (não-preemptivo)
+                while lista_processo[escolhido].tempo_restante > 0:
+                    tempo += 1
+                    lista_processo[escolhido].tempo_restante -= 1
+                    print(
+                        f"tempo [{tempo}]: processo[{escolhido}] restante={lista_processo[escolhido].tempo_restante}")
+                lista_processo[escolhido].finalizado = True
+                lista_processo[escolhido].tempo_termino = tempo
+                finalizados += 1
+
+        # cálculo do tempo de espera
+        print("")
+        soma = 0
+        for i in range(total_processo):
+            p = lista_processo[i]
+            espera = p.tempo_termino - p.tempo_chegada - p.tempo_execucao
+            print(f"Processo[{i}]: tempo_espera={espera}")
+            soma += espera
+
+        print(f"Tempo médio de espera: {soma / total_processo}")
+        input("Clique enter para voltar ao menu")
     
     #codigo da opção 7
     elif algoritimo == 7:
@@ -176,16 +289,8 @@ while flag == True:
         aleatorio = int(input("Sera aleatorio novamente? SIM(1) NÃO(2): "))
 
         if aleatorio == 1:
-            total_processo = random.randint(2, 10)
-            print(f"Quantidade de processos gerada: {total_processo}")
-            for i in range(total_processo):
-                tempo_execucao = random.randint(1, 10)
-                tempo_chegada = random.randint(1, 10)
-                prioridade = random.randint(1, 10)
-
-                processo = Processo(tempo_execucao, tempo_chegada, prioridade)
-                lista_processo.append(processo)
-                print(f"Processo [{i}]: tempo de execução= {tempo_execucao} tempo de restante= {tempo_execucao} tempo de chegada= {tempo_chegada} Prioridade= {prioridade}")
+            lista_processo, total_processo = gerar_processos_aleatorio()
+    
         elif aleatorio == 2:
             total_processo = int(input("Quantos processos? "))
             for i in range(total_processo):
