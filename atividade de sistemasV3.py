@@ -273,7 +273,7 @@ while flag == True:
         print(f"Tempo médio de espera: {soma / total_processo}")
         input("Clique enter para voltar ao menu")
     
-    #ROUND ROBIN
+    #ROUND ROBIN(ajuda de ia para pensar no codigo e vericar em linguagem falada)
     elif algoritimo == 6:
         tempo = 0
         finalizados = 0
