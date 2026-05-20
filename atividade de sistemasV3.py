@@ -273,6 +273,75 @@ while flag == True:
         print(f"Tempo médio de espera: {soma / total_processo}")
         input("Clique enter para voltar ao menu")
     
+    #ROUND ROBIN
+    elif algoritimo == 6:
+        tempo = 0
+        finalizados = 0
+        fila = []
+
+        time_slice = int(input("Escolha o time slice: "))
+
+        #reseta os processos
+        for p in lista_processo:
+            p.tempo_restante = p.tempo_execucao
+            p.finalizado = False
+            p.tempo_termino = 0
+
+        #vai continuar a rodar todos os processos terminarem
+        while finalizados < total_processo:
+            #verifica quem chegou e quem ainda não terminou
+            for i in range(total_processo):
+                p = lista_processo[i]
+                if p.tempo_chegada <= tempo:
+                    if p.finalizado == False:
+                        if i not in fila:
+                            fila.append(i)
+
+
+            if len(fila) == 0:
+                tempo += 1
+                print(f"tempo [{tempo}]: nenhum processo está pronto")
+            else:
+                #remove o primeiro da fila e faz ele ser o que vai executar
+                atual = fila.pop(0)
+                
+                contador_time_slice = 0
+                # executa até o tempo permitido e ainda n terminou
+                while contador_time_slice < time_slice and lista_processo[atual].tempo_restante > 0:
+                    tempo += 1
+                    contador_time_slice += 1
+                    lista_processo[atual].tempo_restante -= 1
+
+                    print(f"tempo [{tempo}]: processo[{atual}] restante={lista_processo[atual].tempo_restante}")
+
+                    # adicionar novos processos na fila
+                    for i in range(total_processo):
+                        p = lista_processo[i]
+                        if p.tempo_chegada <= tempo:
+                            if p.finalizado == False:
+                                if i not in fila and i != atual:
+                                    fila.append(i)
+
+                #guarda se terminou se não volta pra fila
+                if lista_processo[atual].tempo_restante == 0:
+                    lista_processo[atual].finalizado = True
+                    lista_processo[atual].tempo_termino = tempo
+                    finalizados += 1
+                else:
+                    fila.append(atual)
+
+        # cálculo do tempo de espera
+        print("")
+        soma = 0
+        for i in range(total_processo):
+            p = lista_processo[i]
+            espera = p.tempo_termino - p.tempo_chegada - p.tempo_execucao
+            print(f"Processo[{i}]: tempo_espera={espera}")
+            soma += espera
+
+        print(f"Tempo médio de espera: {soma / total_processo}")
+        input("Clique enter para voltar ao menu")
+
     #codigo da opção 7
     elif algoritimo == 7:
         print("Lista de processos:")
